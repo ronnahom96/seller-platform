@@ -1,16 +1,15 @@
 import { RequestHandler } from "express";
+import httpStatus from "http-status-codes";
 import { logger } from "../common/logger/logger-wrapper";
+import * as productModel from "./product-model";
 import {
   CreateProductRequestBody,
   Product,
-  UpdateProductRequestBody,
-  ProductDeleteQuerySchema,
+  ProductBySellerRequestParams,
   ProductDeleteQuery,
-  ProductIdParams
+  ProductIdParams,
+  UpdateProductRequestBody
 } from "./product-schema";
-import * as productModel from "./product-model";
-import httpStatus from "http-status-codes";
-import { reqQueryArrayParser } from "../common/utils/req-util";
 
 type CreateProductHandler = RequestHandler<
   undefined,
@@ -27,12 +26,12 @@ type DeleteProductHandler = RequestHandler<
 
 type UpdateProductHandler = RequestHandler<
   ProductIdParams,
-  ProductOperationResponse,
+  Product,
   UpdateProductRequestBody
 >;
 
-// type GetProductHandler = RequestHandler<ProductRequestParams, Product>;
-// type GetProductsHandler = RequestHandler<undefined, Product[]>;
+type GetProductHandler = RequestHandler<ProductIdParams, Product>;
+type GetProductBySellerHandler = RequestHandler<ProductBySellerRequestParams, Product[]>;
 
 export const createProduct: CreateProductHandler = async (req, res, next) => {
   logger.info({
@@ -60,55 +59,42 @@ export const deleteProducts: DeleteProductHandler = async (req, res, next) => {
   }
 };
 
-// export const updateProduct: UpdateProductHandler = async (req, res, next) => {
-//   logger.info({
-//     msg: `Seller platform service was called to update a product`,
-//     metadata: { productId: req.params.id },
-//   });
-//   try {
-//     const reqParams = productValidator.validateProductRequestParams(req.params);
-//     const reqBody = productValidator.validateUpdateProductReqBody(req.body);
-//     await productModel.updateProduct(reqParams, reqBody);
-//     return res.status(httpStatus.OK).json({ id: reqParams.id });
-//   } catch (error) {
-//     return next(error);
-//   }
-// };
+export const updateProduct: UpdateProductHandler = async (req, res, next) => {
+  logger.info({
+    msg: `Seller platform service was called to update a product`,
+    metadata: { asin: req.params.asin, locale: req.params.locale },
+  });
+  try {
+    const updatedProduct = await productModel.updateProduct(req.params, req.body);
+    return res.status(httpStatus.OK).json(updatedProduct);
+  } catch (error) {
+    return next(error);
+  }
+};
 
-// export const getProductBySellerName: GetProductHandler = async (req, res, next) => {
-//   logger.info({
-//     msg: `Seller platform service was called to get a product`,
-//     metadata: { productId: req.params.id },
-//   });
-//   try {
-//     const reqParams = productValidator.validateProductRequestParams(req.params);
-//     const ProductResponse = await productModel.getProduct(reqParams);
-//     return res.status(httpStatus.OK).json(ProductResponse);
-//   } catch (error) {
-//     return next(error);
-//   }
-// };
+export const getProduct: GetProductHandler = async (req, res, next) => {
+  try {
+    logger.info({
+      msg: `Seller platform service was called to get products by query`,
+      metadata: { asin: req.query.asin, locale: req.query.locale },
+    });
 
-// export const getProducts: GetProductsHandler = async (req, res, next) => {
-//   try {
-//     logger.info({
-//       msg: `Seller platform service was called to get products by query`,
-//       metadata: { query: req.query },
-//     });
+    const productResponse = await productModel.getProduct(req.query);
+    return res.status(httpStatus.OK).json(productResponse);
+  } catch (error) {
+    return next(error);
+  }
+};
 
-//     const validatedQuery = productValidator.validateProductRequestQuery(
-//       req.query
-//     );
-
-//     let parsedFilters: Record<string, unknown>[] = [];
-//     if (validatedQuery?.filters) {
-//       parsedFilters = reqQueryArrayParser(validatedQuery?.filters);
-//     }
-
-//     const validFilters = productValidator.validateProductFilters(parsedFilters);
-//     const ProductResponse = await productModel.getProducts(validFilters);
-//     return res.status(httpStatus.OK).json(ProductResponse);
-//   } catch (error) {
-//     return next(error);
-//   }
-// };
+export const getProductBySellerName: GetProductBySellerHandler = async (req, res, next) => {
+  logger.info({
+    msg: `Seller platform service was called to get a product`,
+    metadata: { sellerName: req.params.sellerName },
+  });
+  try {
+    const productsResponse = await productModel.getProductBySellerName(req.params.sellerName);
+    return res.status(httpStatus.OK).json(productsResponse);
+  } catch (error) {
+    return next(error);
+  }
+};
