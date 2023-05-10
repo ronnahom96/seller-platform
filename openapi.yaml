@@ -1,0 +1,184 @@
+openapi: 3.0.0
+info:
+  title: Seller platform service
+  description: CRUD operations for seller products with querying capabilities
+  version: 1.0.0
+servers:
+  - url: "http://localhost:3000"
+    description: For local development
+paths:
+  /products:
+    post:
+      tags:
+        - Products
+      summary: Create a new product
+      description: Creates a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        "201":
+          description: The created product id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      tags:
+        - Products
+      summary: Delete seller products by ASIN and Locale
+      parameters:
+        - name: asin_locale_pairs
+          in: query
+          required: true
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+              description: ASIN and Locale pair in the format of "ASIN,Locale"
+          explode: false
+
+      responses:
+        "204":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+   /products/{sellerName}:
+    get:
+      tags:
+        - Products
+      summary: Get all products by seller name
+      parameters:
+        - name: seller_name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Seller name
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+  /products/{asin}/{locale}:
+    get:
+      tags:
+        - Products
+      summary: Get a seller product by ASIN and Locale
+      parameters:
+        - name: asin
+          in: path
+          description: Amazon ID
+          required: true
+          schema:
+            type: string
+        - name: locale
+          in: path
+          description: Locale
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Product not found
+        "500":
+          description: Internal Server Error
+    put:
+      tags:
+        - Products
+      summary: Update a seller product by ASIN and Locale
+      description: Updates a product by its unique Id (asin + locale)
+      parameters:
+        - name: asin
+          in: path
+          description: Amazon ID
+          required: true
+          schema:
+            type: string
+        - name: locale
+          in: path
+          description: Locale
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: The updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "400":
+          description: Bad Request
+        "404":
+          description: Product not found
+        "500":
+          description: Internal Server Error
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        asin:
+          type: string
+        locale:
+          type: string
+        availability:
+          type: boolean
+        price:
+          type: number
+          format: float
+        name:
+          type: string
+        link:
+          type: string
+    ProductUpdate:
+      type: object
+      properties:
+        availability:
+          type: boolean
+        price:
+          type: number
+          format: float
+        name:
+          type: string
+        link:
+          type: string
+    ProductDelete:
+      type: array
+      items:
+        type: object
+        properties:
+          asin:
+            type: string
+          locale:
+            type: string
