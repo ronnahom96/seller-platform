@@ -26,18 +26,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Product"
-  /products/{sellerName}:
     get:
       tags:
         - Products
-      summary: Get all products by seller name
+      summary: Get products by seller name and availability
       parameters:
         - name: sellerName
-          in: path
+          in: query
           required: true
           schema:
             type: string
           description: Seller name
+        - name: availability
+          in: query
+          required: true
+          default: true
+          schema:
+            type: boolean
+          description: Product availability
       responses:
         "200":
           description: OK

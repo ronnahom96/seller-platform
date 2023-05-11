@@ -5,7 +5,7 @@ import * as productModel from "./product-model";
 import {
   CreateProductRequestBody,
   Product,
-  ProductBySellerRequestParams,
+  ProductsRequestQuery,
   ProductBatchDeleteRequestBody,
   ProductIdParams,
   UpdateProductRequestBody
@@ -30,7 +30,7 @@ type UpdateProductHandler = RequestHandler<
 >;
 
 type GetProductHandler = RequestHandler<ProductIdParams, Product>;
-type GetAvailableProductBySellerHandler = RequestHandler<ProductBySellerRequestParams, Product[]>;
+type GetProductsHandler = RequestHandler<undefined, Product[], undefined, ProductsRequestQuery>;
 
 export const createProduct: CreateProductHandler = async (req, res, next) => {
   logger.info({
@@ -85,13 +85,13 @@ export const getProduct: GetProductHandler = async (req, res, next) => {
   }
 };
 
-export const getAvailableProductBySellerName: GetAvailableProductBySellerHandler = async (req, res, next) => {
+export const getProducts: GetProductsHandler = async (req, res, next) => {
   logger.info({
     msg: `Seller platform service was called to get a product`,
-    metadata: { sellerName: req.params.sellerName },
+    metadata: { sellerName: req.query.sellerName, availability: req.query.availability },
   });
   try {
-    const productsResponse = await productModel.getAvailableProductBySellerName(req.params.sellerName);
+    const productsResponse = await productModel.getProducts(req.query);
     return res.status(httpStatus.OK).json(productsResponse);
   } catch (error) {
     return next(error);

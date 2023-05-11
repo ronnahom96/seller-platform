@@ -84,10 +84,11 @@ export class ProductRepository extends Repository<ProductEntity> {
     return product;
   }
 
-  public async getAvailableProductBySellerName(
-    sellerName: string
+  public async getProducts(
+    sellerName: string,
+    availability: boolean
   ): Promise<Product[]> {
-    const products = await this.findBy({ sellerName, availability: true });
+    const products = await this.findBy({ sellerName, availability });
     return products;
   }
 }

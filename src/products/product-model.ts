@@ -1,6 +1,6 @@
 import { logger } from "../common/logger/logger-wrapper";
 import * as productRepository from "../DAL/repositories/product-repository";
-import { CreateProductRequestBody, Product, ProductBatchDeleteRequestBody, ProductIdParams, UpdateProductRequestBody } from "./product-schema";
+import { CreateProductRequestBody, Product, ProductBatchDeleteRequestBody, ProductIdParams, ProductsRequestQuery, UpdateProductRequestBody } from "./product-schema";
 
 export async function createProduct(
   reqBody: CreateProductRequestBody
@@ -48,14 +48,14 @@ export async function getProduct(
   return product;
 }
 
-export async function getAvailableProductBySellerName(
-  sellerName: string): Promise<Product[]> {
+export async function getProducts(
+  { sellerName, availability }: ProductsRequestQuery): Promise<Product[]> {
   logger.info({
     msg: "getting products by seller name",
-    metadata: { sellerName },
+    metadata: { sellerName, availability },
   });
 
   const repo = await productRepository.getRepository();
-  const products = await repo.getAvailableProductBySellerName(sellerName);
+  const products = await repo.getProducts(sellerName, availability);
   return products;
 }

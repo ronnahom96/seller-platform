@@ -23,8 +23,9 @@ export const ProductIdSchema = z.object({
   locale: z.string(),
 });
 
-export const ProductSellerNameSchema = z.object({
-  sellerName: z.string()
+export const ProductsRequestQuerySchema = z.object({
+  sellerName: z.string(),
+  availability: z.boolean()
 })
 
 export type ProductIdParams = z.infer<typeof ProductIdSchema>;
@@ -33,4 +34,4 @@ export const ProductIdArraySchema = z.array(ProductIdSchema);
 
 export type ProductBatchDeleteRequestBody = z.infer<typeof ProductIdArraySchema>;
 
-export type ProductBySellerRequestParams = z.infer<typeof ProductSellerNameSchema>;
+export type ProductsRequestQuery = z.infer<typeof ProductsRequestQuerySchema>;
