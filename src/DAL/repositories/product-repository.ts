@@ -1,5 +1,5 @@
 import { DataSource, Repository } from "typeorm";
-import { ResourceNotFoundError } from "../../common/errors/error-types";
+import { ResourceExistsError, ResourceNotFoundError } from "../../common/errors/error-types";
 import { logger } from "../../common/logger/logger-wrapper";
 import {
   CreateProductRequestBody,
@@ -16,6 +16,17 @@ export class ProductRepository extends Repository<ProductEntity> {
   public async createProduct(
     createdProduct: CreateProductRequestBody
   ): Promise<Product> {
+    const { asin, locale } = createdProduct;
+    if (await this.productExists(asin, locale)) {
+      logger.error({
+        msg: "Product already exists",
+        metadata: { asin, locale },
+      });
+      throw new ResourceExistsError(
+        `Product with asin ${asin} and locale: ${locale} already exists`
+      );
+    }
+
     await this.save(createdProduct);
     return createdProduct;
   }
