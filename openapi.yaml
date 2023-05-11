@@ -152,6 +152,8 @@ components:
           type: string
         locale:
           type: string
+        sellerName:
+          type: string
         availability:
           type: boolean
         price:

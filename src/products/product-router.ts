@@ -6,9 +6,9 @@ export default function defineProductsRoutes() {
 
   router.post("/", productController.createProduct);
   router.delete("/", productController.deleteProducts);
-  // router.put("/:asin/:locale", productController.updateProduct);
-  // router.get("/:asin/:locale", productController.getProducts);
-  // router.get("/:sellerName", productController.getProductBySellerName);
+  router.put("/:asin/:locale", productController.updateProduct);
+  router.get("/:asin/:locale", productController.getProduct);
+  router.get("/:sellerName", productController.getAvailableProductBySellerName);
 
   return router;
 }

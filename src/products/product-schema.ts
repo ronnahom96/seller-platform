@@ -14,7 +14,7 @@ export type Product = z.infer<typeof ProductSchema>;
 
 export type CreateProductRequestBody = z.infer<typeof ProductSchema>;
 
-export const UpdateProductSchema = ProductSchema.partial().strict();
+export const UpdateProductSchema = ProductSchema.omit({ asin: true, locale: true }).partial().strict();
 
 export type UpdateProductRequestBody = z.infer<typeof UpdateProductSchema>;
 
@@ -29,4 +29,10 @@ export const ProductIdSchema = z.object({
   locale: z.string(),
 });
 
+export const ProductSellerNameSchema = z.object({
+  sellerName: z.string()
+})
+
 export type ProductIdParams = z.infer<typeof ProductIdSchema>;
+
+export type ProductBySellerRequestParams = z.infer<typeof ProductSellerNameSchema>;
