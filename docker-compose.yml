@@ -1,34 +1,32 @@
 version: "3"
 services:
-  postgis:
-    image: mdillon/postgis
+  db:
+    image: postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: geo_catalog
+      POSTGRES_DB: seller-platform-db
     volumes:
-      # - ./init.sql:/docker-entrypoint-initdb.d/src/DAL/migration/init.sql
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5431:5432"
-  api-dev:
+      - "5432:5432"
+  app:
     restart: always
     build:
       context: .
       dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
-    volumes:
-      - /app/node_modules
-      - .:/app
     environment:
       - DB_TYPE=postgres
       - DB_USER=postgres
       - DB_HOST=postgis
-      - DB_NAME=geo_catalog
+      - DB_NAME=seller-platform-db
       - DB_PASSWORD=postgres
       - DB_PORT=5432
       - PORT=3000
-    command: sh -c "npm run test:integration && npm run start:dev"
+    command: sh -c "npm run start"
+    depends_on:
+      - db
 volumes:
   pgdata:
