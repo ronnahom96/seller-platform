@@ -5,6 +5,7 @@ import { Configuration } from "../config";
 import { logger } from "./common/logger/logger-wrapper";
 import { LOG_LEVEL } from "./common/logger/definition";
 import YAML from "yamljs";
+import cors from 'cors';
 import path from "path";
 import swaggerUi from "swagger-ui-express";
 import { getErrorHandlerMiddleware } from "./common/middlewares/error-handling-midleware";
@@ -38,6 +39,7 @@ function buildDocsRoutes(): void {
 }
 
 function registerPreRoutesMiddleWare(): void {
+  server.use(cors());
   server.use(express.urlencoded({ extended: true }));
   server.use(express.json());
 }
