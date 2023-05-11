@@ -51,13 +51,13 @@ paths:
           description: Not Found
         "500":
           description: Internal Server Error
-   /products/{sellerName}:
+  /products/{sellerName}:
     get:
       tags:
         - Products
       summary: Get all products by seller name
       parameters:
-        - name: seller_name
+        - name: sellerName
           in: path
           required: true
           schema:
