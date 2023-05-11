@@ -25,26 +25,22 @@ export class ProductRepository extends Repository<ProductEntity> {
     return recordCount === 1;
   }
 
-  // public async deleteProducts(asinLocalePairs: string[]): Promise<void> {
-  //   const asinLocaleList = 
-  //   asinLocalePairs.map(asinLocale => this.deleteProduct())
-  //   for (const asinLocale of asinLocalePairs) {
+  public async deleteBatchProducts(productIdsArray): Promise<void> {
+    const queryBuilder = this.createQueryBuilder();
 
-  //   }
-  // }
+    queryBuilder.where(
+      productIdsArray.map(
+        (product) => `(product.asin = '${product.asin}' AND product.locale = '${product.locale}')`
+      ).join(' OR ')
+    );
 
-  // public async deleteProduct(asinLocalePairs: string[]): Promise<void> {
-  //   if (!(await this.productExists(productId))) {
-  //     logger.error({
-  //       msg: "Product was not found",
-  //       metadata: { productId },
-  //     });
-  //     throw new ResourceNotFoundError(
-  //       ` Product ${productId} was not found for delete request`
-  //     );
-  //   }
-  //   await this.delete(productId);
-  // }
+    const result = await queryBuilder.delete().execute();
+
+    logger.info({
+      msg: `Deleted ${result.affected} products`,
+      metadata: { result },
+    });
+  }
 
   public async updateProduct(
     asin: string,

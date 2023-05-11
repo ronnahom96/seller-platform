@@ -1,6 +1,6 @@
 import { logger } from "../common/logger/logger-wrapper";
 import * as productRepository from "../DAL/repositories/product-repository";
-import { CreateProductRequestBody, Product, ProductDeleteQuery, ProductIdParams, UpdateProductRequestBody } from "./product-schema";
+import { CreateProductRequestBody, Product, ProductBatchDeleteRequestBody, ProductIdParams, UpdateProductRequestBody } from "./product-schema";
 
 export async function createProduct(
   reqBody: CreateProductRequestBody
@@ -11,15 +11,15 @@ export async function createProduct(
   return createdProduct;
 }
 
-export async function deleteProduct(
-  reqParams: ProductDeleteQuery
+export async function deleteBatchProducts(
+  productIdsArray: ProductBatchDeleteRequestBody
 ): Promise<void> {
   logger.info({
     msg: "Deleting Product",
-    metadata: { productId: reqParams },
+    metadata: { productIdsArray },
   });
   const repo = await productRepository.getRepository();
-  // await repo.deleteProduct(reqParams.asinLocalePairs);
+  await repo.deleteBatchProducts(productIdsArray);
 }
 
 export async function updateProduct(

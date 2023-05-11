@@ -18,12 +18,6 @@ export const UpdateProductSchema = ProductSchema.omit({ asin: true, locale: true
 
 export type UpdateProductRequestBody = z.infer<typeof UpdateProductSchema>;
 
-export const ProductDeleteQuerySchema = z.object({
-  asinLocalePairs: z.array(z.string()),
-});
-
-export type ProductDeleteQuery = z.infer<typeof ProductDeleteQuerySchema>;
-
 export const ProductIdSchema = z.object({
   asin: z.string(),
   locale: z.string(),
@@ -34,5 +28,9 @@ export const ProductSellerNameSchema = z.object({
 })
 
 export type ProductIdParams = z.infer<typeof ProductIdSchema>;
+
+export const ProductIdArraySchema = z.array(ProductIdSchema);
+
+export type ProductBatchDeleteRequestBody = z.infer<typeof ProductIdArraySchema>;
 
 export type ProductBySellerRequestParams = z.infer<typeof ProductSellerNameSchema>;

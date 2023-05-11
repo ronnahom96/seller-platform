@@ -6,7 +6,7 @@ import {
   CreateProductRequestBody,
   Product,
   ProductBySellerRequestParams,
-  ProductDeleteQuery,
+  ProductBatchDeleteRequestBody,
   ProductIdParams,
   UpdateProductRequestBody
 } from "./product-schema";
@@ -20,8 +20,7 @@ type CreateProductHandler = RequestHandler<
 type DeleteProductHandler = RequestHandler<
   undefined,
   undefined,
-  undefined,
-  ProductDeleteQuery
+  ProductBatchDeleteRequestBody
 >;
 
 type UpdateProductHandler = RequestHandler<
@@ -46,14 +45,14 @@ export const createProduct: CreateProductHandler = async (req, res, next) => {
   }
 };
 
-export const deleteProducts: DeleteProductHandler = async (req, res, next) => {
+export const deleteBatchProducts: DeleteProductHandler = async (req, res, next) => {
   logger.info({
     msg: `Seller platform service was called to delete a product`,
-    metadata: { asinLocalePairs: req.query },
+    metadata: { asinLocalePairs: req.body },
   });
   try {
-    // await productModel.deleteProducts(req.query);
-    return res.status(httpStatus.NO_CONTENT);
+    await productModel.deleteBatchProducts(req.body);
+    return res.status(httpStatus.NO_CONTENT).send(undefined);
   } catch (error) {
     return next(error);
   }

@@ -26,31 +26,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Product"
-    delete:
-      tags:
-        - Products
-      summary: Delete seller products by ASIN and Locale
-      parameters:
-        - name: asin_locale_pairs
-          in: query
-          required: true
-          style: form
-          schema:
-            type: array
-            items:
-              type: string
-              description: ASIN and Locale pair in the format of "ASIN,Locale"
-          explode: false
-
-      responses:
-        "204":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
   /products/{sellerName}:
     get:
       tags:
@@ -142,7 +117,35 @@ paths:
           description: Product not found
         "500":
           description: Internal Server Error
+  /products/delete-batch:
+    post:
+      tags:
+        - Products
+      summary: Delete a batch of products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              items:
+                type: object
+                properties:
+                  asin:
+                    type: string
+                    description: Amazon ID
+                  locale:
+                    type: string
+                    description: Locale
 
+      responses:
+        "204":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
 components:
   schemas:
     Product:
