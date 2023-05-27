@@ -1,25 +1,43 @@
+import { ResourceExistsError, ResourceNotFoundError } from "../common/errors/error-types";
 import { logger } from "../common/logger/logger-wrapper";
 import * as productRepository from "../DAL/repositories/product-repository";
 import { CreateProductRequestBody, Product, ProductBatchDeleteRequestBody, ProductIdParams, ProductsRequestQuery, UpdateProductRequestBody } from "./product-schema";
 
 export async function createProduct(
-  reqBody: CreateProductRequestBody
+  createProductReqBody: CreateProductRequestBody
 ): Promise<Product> {
   logger.info({ msg: "Creating Product" });
   const repo = await productRepository.getRepository();
-  const createdProduct: Product = await repo.createProduct(reqBody);
+
+  const { asin, locale } = createProductReqBody;
+  if (await repo.isProductExists(asin, locale)) {
+    logger.error({
+      msg: "Product already exists",
+      metadata: { asin, locale },
+    });
+    throw new ResourceExistsError(
+      `Product with asin ${asin} and locale: ${locale} already exists`
+    );
+  }
+
+  const createdProduct: Product = await repo.createProduct(createProductReqBody);
   return createdProduct;
 }
 
 export async function deleteBatchProducts(
-  productIdsArray: ProductBatchDeleteRequestBody
+  productIds: ProductBatchDeleteRequestBody
 ): Promise<void> {
   logger.info({
     msg: "Deleting Product",
-    metadata: { productIdsArray },
+    metadata: { productIds },
   });
   const repo = await productRepository.getRepository();
-  await repo.deleteBatchProducts(productIdsArray);
+  const result = await repo.deleteBatchProducts(productIds);
+
+  logger.info({
+    msg: `Deleted ${result.affected} products`,
+    metadata: { result },
+  });
 }
 
 export async function updateProduct(
@@ -31,6 +49,18 @@ export async function updateProduct(
     metadata: { productId: productId },
   });
   const repo = await productRepository.getRepository();
+  const { asin, locale } = productId;
+
+  if (!(await repo.isProductExists(asin, locale))) {
+    logger.error({
+      msg: "Product was not found",
+      metadata: { asin, locale },
+    });
+    throw new ResourceNotFoundError(
+      `Product with asin ${asin} and locale: ${locale} was not found`
+    );
+  }
+
   const product = await repo.updateProduct(productId.asin, productId.locale, productToUpdate);
   return product;
 }
@@ -42,9 +72,18 @@ export async function getProduct(
     msg: "getting product by asin and locale",
     metadata: { productId },
   });
-
   const repo = await productRepository.getRepository();
-  const product = await repo.getProduct(productId.asin, productId.locale);
+  const { asin, locale } = productId;
+  const product = await repo.getProduct(asin, locale);
+
+  if (product === null) {
+    logger.error({
+      msg: "Product was not found",
+      metadata: { asin, locale },
+    });
+    throw new ResourceNotFoundError(`Product with asin ${asin} and locale: ${locale} was not found`);
+  }
+
   return product;
 }
 

@@ -1,6 +1,4 @@
-import { DataSource, Repository } from "typeorm";
-import { ResourceExistsError, ResourceNotFoundError } from "../../common/errors/error-types";
-import { logger } from "../../common/logger/logger-wrapper";
+import { DataSource, DeleteResult, Repository } from "typeorm";
 import {
   CreateProductRequestBody,
   Product,
@@ -16,27 +14,16 @@ export class ProductRepository extends Repository<ProductEntity> {
   public async createProduct(
     createdProduct: CreateProductRequestBody
   ): Promise<Product> {
-    const { asin, locale } = createdProduct;
-    if (await this.productExists(asin, locale)) {
-      logger.error({
-        msg: "Product already exists",
-        metadata: { asin, locale },
-      });
-      throw new ResourceExistsError(
-        `Product with asin ${asin} and locale: ${locale} already exists`
-      );
-    }
-
     await this.save(createdProduct);
     return createdProduct;
   }
 
-  private async productExists(asin: string, locale: string): Promise<boolean> {
+  public async isProductExists(asin: string, locale: string): Promise<boolean> {
     const recordCount = await this.count({ where: { asin, locale } });
     return recordCount === 1;
   }
 
-  public async deleteBatchProducts(productIdsArray): Promise<void> {
+  public async deleteBatchProducts(productIdsArray): Promise<DeleteResult> {
     const queryBuilder = this.createQueryBuilder();
 
     queryBuilder.where(
@@ -46,11 +33,7 @@ export class ProductRepository extends Repository<ProductEntity> {
     );
 
     const result = await queryBuilder.delete().execute();
-
-    logger.info({
-      msg: `Deleted ${result.affected} products`,
-      metadata: { result },
-    });
+    return result;
   }
 
   public async updateProduct(
@@ -58,29 +41,11 @@ export class ProductRepository extends Repository<ProductEntity> {
     locale: string,
     updateProductBody: UpdateProductRequestBody
   ): Promise<void> {
-    if (!(await this.productExists(asin, locale))) {
-      logger.error({
-        msg: "Product was not found",
-        metadata: { asin, locale },
-      });
-      throw new ResourceNotFoundError(
-        `Product with asin ${asin} and locale: ${locale} was not found`
-      );
-    }
-
     await this.update({ asin, locale }, updateProductBody);
   }
 
-  public async getProduct(asin: string, locale: string): Promise<Product> {
+  public async getProduct(asin: string, locale: string): Promise<Product | null> {
     const product = await this.findOneBy({ asin, locale });
-    if (product === null) {
-      logger.error({
-        msg: "Product was not found",
-        metadata: { asin, locale },
-      });
-      throw new ResourceNotFoundError(`Product with asin ${asin} and locale: ${locale} was not found`);
-    }
-
     return product;
   }
 
