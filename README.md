@@ -68,7 +68,10 @@ This project is licensed under the MIT License.
 ## TODO
 
 1. Unit tests
-1. Integration tests
+2. Integration tests
+3. Add validations
+4. Move logic to the service from the repository
+5. Fix docker compose file
 
 ## API
 
