@@ -50,7 +50,7 @@ export class ProductRepository extends Repository<ProductEntity> {
   }
 
   public async getProducts(
-    sellerName: string,
+    sellerName: string | undefined,
     availability: boolean | undefined
   ): Promise<Product[]> {
     const products = await this.findBy({ sellerName, availability });

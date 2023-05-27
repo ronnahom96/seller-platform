@@ -20,7 +20,7 @@ export type UpdateProductRequestBody = z.infer<typeof UpdateProductSchema>;
 
 export const ProductIdSchema = ProductSchema.pick({ asin: true, locale: true });
 
-export const ProductsRequestQuerySchema = z.object({ sellerName: z.string().min(1), availability: z.boolean().optional() });
+export const ProductsRequestQuerySchema = ProductSchema.pick({ sellerName: true, availability: true }).partial();
 export type ProductsRequestQuery = z.infer<typeof ProductsRequestQuerySchema>;
 
 export type ProductIdParams = z.infer<typeof ProductIdSchema>;
