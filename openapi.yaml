@@ -40,7 +40,6 @@ paths:
         - name: availability
           in: query
           required: true
-          default: true
           schema:
             type: boolean
           description: Product availability
@@ -156,6 +155,7 @@ components:
   schemas:
     Product:
       type: object
+      required: [asin, locale, sellerName, availability, price, name, link]
       properties:
         asin:
           type: string
@@ -188,6 +188,7 @@ components:
       type: array
       items:
         type: object
+        required: [asin, locale]
         properties:
           asin:
             type: string
